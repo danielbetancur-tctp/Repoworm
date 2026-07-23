@@ -1,0 +1,23 @@
+# Dependencias del módulo de preprocesamiento (backend/python).
+#
+# La VISTA PREVIA (limpieza de imagen) solo requiere:
+#   - opencv-python
+#   - numpy
+#
+# La EXTRACCIÓN DE CARACTERÍSTICAS usada en la PREDICCIÓN (endpoint /api/predict,
+# extract_features_cli.py) y el resto del pipeline (preprocesamiento tabular /
+# térmico completo y fusión sensorial) requieren ADEMÁS:
+#   - pandas
+#   - scipy
+#   - scikit-image
+#
+# Instalación recomendada:
+#   python -m pip install -r backend/python/requirements.txt
+
+opencv-python>=4.8
+numpy>=1.24
+
+# Requeridos por el pipeline completo de features (no por la vista previa):
+pandas>=2.0
+scipy>=1.10
+scikit-image>=0.21

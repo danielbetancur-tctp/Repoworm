@@ -1,0 +1,5 @@
+modelo,MAE,RMSE,R2,unidad
+Escenario 3 - CatBoost Ocupación Discretizada - LOO,26.923076923076923,32.581259360842104,-0.17639344262295076,%
+Escenario 3 - CatBoost Ocupación Discretizada - LOO equivalente en gramos,13.461538461538462,16.290629680421052,-0.17639344262295076,g
+Escenario 3 - CatBoost Ocupación Discretizada - LOWO,35.38461538461539,42.24470836229533,-0.977704918032787,%
+Escenario 3 - CatBoost Ocupación Discretizada - LOWO equivalente en gramos,17.692307692307693,21.122354181147664,-0.977704918032787,g

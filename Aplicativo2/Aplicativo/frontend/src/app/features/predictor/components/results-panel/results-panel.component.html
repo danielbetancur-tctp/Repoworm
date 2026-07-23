@@ -1,0 +1,98 @@
+<div class="results-wrapper">
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       ENCABEZADO
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="results-header">
+    <div class="results-header-left">
+      <h2>Resultados de la predicción</h2>
+      <p class="results-subtitle">
+        Resumen de la predicción realizada el {{ data.timestamp | date:'dd/MM/yyyy - HH:mm' }}
+      </p>
+    </div>
+    <button class="btn-reset" (click)="resetRequest.emit()" matTooltip="Ejecutar una nueva predicción">
+      <mat-icon>refresh</mat-icon>
+      <span>Nueva predicción</span>
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       TARJETAS DE MÉTRICAS (KPIs)
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="metrics-row">
+    @for (card of metricCards(); track card.label) {
+      <div class="metric-card">
+        <span class="metric-icon" [attr.data-accent]="card.accent">
+          <mat-icon>{{ card.icon }}</mat-icon>
+        </span>
+        <div class="metric-body">
+          <span class="metric-label">
+            {{ card.label }}
+            @if (card.sublabel) { <span class="metric-sublabel">{{ card.sublabel }}</span> }
+          </span>
+          <span class="metric-value" [attr.data-accent]="card.accent">{{ card.value }}</span>
+          <span class="metric-description">{{ card.description }}</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       GRÁFICAS COMPARATIVAS (solo si se proporcionó dato real)
+  ══════════════════════════════════════════════════════════════════════════ -->
+  @if (hasRealValue()) {
+    <div class="charts-grid">
+
+      <!-- 1. Regresión lineal: Predicción vs Dato real -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div class="chart-card-title">Regresión lineal: Predicción vs Dato real</div>
+          <button class="btn-icon" (click)="exportChart('regression')" matTooltip="Descargar gráfica">
+            <mat-icon>download</mat-icon>
+          </button>
+        </div>
+
+        <div class="chart-canvas-wrap tall">
+          <canvas #regressionChart></canvas>
+        </div>
+
+        @if (data.metrics) {
+          <div class="chart-footer">
+            <span><strong>Diferencia:</strong> {{ data.metrics.errorGrams | number:'1.2-2' }} g</span>
+          </div>
+        }
+      </div>
+
+      <!-- 2. Comparación en gramos: Estimado vs Real (barras) -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div class="chart-card-title">Comparación: Estimado vs Real (g)</div>
+          <button class="btn-icon" (click)="exportChart('comparison')" matTooltip="Descargar gráfica">
+            <mat-icon>download</mat-icon>
+          </button>
+        </div>
+
+        <div class="chart-canvas-wrap tall">
+          <canvas #comparisonChart></canvas>
+        </div>
+
+        <div class="chart-footer">
+          <span><strong>Estimado:</strong> {{ data.prediction.grams | number:'1.2-2' }} g</span>
+          <span class="footer-sep">|</span>
+          <span><strong>Real:</strong> {{ data.realValue!.grams | number:'1.2-2' }} g</span>
+        </div>
+      </div>
+
+    </div>
+  } @else {
+    <!-- Sin dato real: no se muestran gráficas comparativas -->
+    <div class="no-charts-hint">
+      <mat-icon>insights</mat-icon>
+      <span>
+        Ingresa la <strong>cantidad real (g)</strong> al ejecutar la predicción para ver las
+        gráficas comparativas (regresión y densidad).
+      </span>
+    </div>
+  }
+
+</div>

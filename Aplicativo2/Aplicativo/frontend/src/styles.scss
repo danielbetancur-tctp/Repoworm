@@ -1,0 +1,55 @@
+/* ── Variables globales ───────────────────────────────────────────────────── */
+:root {
+  --navy:        #00448a; /* Changed to match header text and nav */
+  --navy-light:  #003265; /* Darker blue for nav/footer background */
+  --orange:      #f06811; /* Orange for active tab and icons */
+  --orange-dark: #d5590c;
+  --green:       #119245; /* Green for buttons */
+  --green-dark:  #0e7537;
+  --blue:        #00448a;
+  --gray-bg:     #f4f6f8;
+  --gray-border: #e2e8f0;
+  --text-main:   #334155;
+  --text-sub:    #64748b;
+  --white:       #ffffff;
+  --card-shadow: 0 4px 12px rgba(0,0,0,.08);
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  background: var(--gray-bg);
+  color: var(--text-main);
+}
+
+* { box-sizing: border-box; }
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 7px; }
+::-webkit-scrollbar-track { background: #f0f0f0; }
+::-webkit-scrollbar-thumb { background: #b0b8c8; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #8898aa; }
+
+/* ── Angular Material overrides ──────────────────────────────────────────── */
+.mat-mdc-card {
+  border-radius: 10px !important;
+  box-shadow: var(--card-shadow) !important;
+}
+.mat-mdc-form-field { width: 100%; }
+
+/* ── Snackbars ───────────────────────────────────────────────────────────── */
+.snack-success .mdc-snackbar__surface {
+  background: #15803d !important;
+  color: #fff !important;
+}
+.snack-error .mdc-snackbar__surface {
+  background: #b91c1c !important;
+  color: #fff !important;
+}
+
+/* ── Utilidades ──────────────────────────────────────────────────────────── */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;
+}

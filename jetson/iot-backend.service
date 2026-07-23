@@ -1,0 +1,16 @@
+[Unit]
+Description=Backend IoT de vermicultura
+After=network.target postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/iot_backend
+EnvironmentFile=/home/ubuntu/iot_backend/.env
+ExecStart=/home/ubuntu/iot_backend/.venv/bin/python /home/ubuntu/iot_backend/app_serial_excel_postgresql.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

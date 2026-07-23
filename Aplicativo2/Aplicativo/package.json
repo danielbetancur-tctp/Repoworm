@@ -1,0 +1,21 @@
+{
+  "name": "worm-density-app",
+  "version": "1.0.0",
+  "description": "Aplicación web para la predicción de densidad y cantidad de lombrices rojas (Eisenia fetida) a partir de imágenes térmicas y modelos de IA. Orquesta el backend (API REST) y el frontend (Angular) desde un único punto.",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install && npm install --prefix backend && npm install --prefix frontend",
+    "dev": "concurrently -n BACKEND,FRONTEND -c blue,green \"npm --prefix ./backend run dev\" \"npm --prefix ./frontend start\"",
+    "start": "npm run dev",
+    "backend": "npm --prefix ./backend run dev",
+    "frontend": "npm --prefix ./frontend start",
+    "build": "npm --prefix ./backend run build && npm --prefix ./frontend run build",
+    "build:prod": "npm --prefix ./backend run build && npm --prefix ./frontend run build:prod"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

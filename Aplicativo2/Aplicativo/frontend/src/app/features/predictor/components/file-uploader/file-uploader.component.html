@@ -1,0 +1,54 @@
+<div
+  class="drop-zone"
+  [attr.data-accent]="accent"
+  [class.drag-over]="isDragOver()"
+  [class.has-file]="selectedFile"
+  [class.disabled]="disabled"
+>
+  @if (selectedFile) {
+    <!-- Estado: archivo seleccionado -->
+    <div class="file-chip">
+      <mat-icon class="file-chip-icon">description</mat-icon>
+      <div class="file-chip-info">
+        <span class="file-chip-name" [title]="selectedFile.name">{{ selectedFile.name }}</span>
+        <span class="file-chip-size">{{ selectedFileSize }}</span>
+      </div>
+      <button
+        type="button"
+        mat-icon-button
+        class="file-chip-remove"
+        (click)="clearFile($event)"
+        [attr.aria-label]="'Eliminar ' + selectedFile.name"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  } @else {
+    <!-- Estado: vacío -->
+    <label [attr.for]="disabled ? null : inputId" class="drop-label">
+      <mat-icon class="upload-icon">{{ icon }}</mat-icon>
+      <span class="drop-primary-text">{{ title }}</span>
+      <span class="drop-or-text">o</span>
+      <span class="btn-select-file">{{ buttonLabel }}</span>
+      @if (hint) {
+        <span class="drop-secondary-text">{{ hint }}</span>
+      }
+    </label>
+    <input
+      [id]="inputId"
+      type="file"
+      class="file-input"
+      [accept]="acceptAttr()"
+      [disabled]="disabled"
+      (change)="onFileInputChange($event)"
+    />
+  }
+
+  <!-- Error de validación -->
+  @if (errorMessage()) {
+    <div class="validation-error" role="alert">
+      <mat-icon>warning</mat-icon>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+</div>

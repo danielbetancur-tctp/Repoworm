@@ -1,0 +1,367 @@
+<div class="page-wrapper">
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       HEADER
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <header class="site-header">
+    <div class="header-inner">
+
+      <!-- Logos de instituciones -->
+      <div class="logos">
+        <div class="logo-iue">
+          <img src="assets/logos/iue-logo.png" alt="IUE Logo" class="logo-img">
+        </div>
+        <div class="logo-sep"></div>
+        <div class="logo-udea">
+          <img src="assets/logos/udea-logo.webp" alt="UDEA Logo" class="logo-img udea">
+        </div>
+      </div>
+
+      <!-- Título principal -->
+      <div class="header-title-block">
+        <h1>Predicción de Densidad y Cantidad<br>de Lombrices Rojas</h1>
+        <p>Modelos de IA para análisis de imágenes</p>
+      </div>
+
+      <div class="header-deco" aria-hidden="true">
+        <img src="assets/logos/Lombriz.webp" alt="Decoración de lombrices" class="deco-img" />
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       NAVEGACIÓN
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <nav class="site-nav" role="navigation" aria-label="Secciones principales">
+    <div class="nav-inner">
+      @for (item of navItems; track item.id) {
+      <button class="nav-tab" [class.active]="activeTab() === item.id" (click)="setTab(item.id)"
+        [attr.aria-current]="activeTab() === item.id ? 'page' : null">
+        <mat-icon>{{ item.icon }}</mat-icon>
+        <span>{{ item.label }}</span>
+      </button>
+      }
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       CONTENIDO PRINCIPAL
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <main class="site-main">
+
+    <!-- ─── TAB: PROBAR MODELO ──────────────────────────────────────────── -->
+    @if (activeTab() === 'probar') {
+    <form class="probar-layout" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+      <!-- ═══ 1. MODELO ═══════════════════════════════════════════════════ -->
+      <section class="panel">
+        <h2 class="panel-title">
+          <span class="badge">1</span> <span>Modelo<span class="req-star">*</span></span>
+        </h2>
+
+        <div class="model-split">
+          <!-- Modelo integrado -->
+          <div class="split-item">
+            <label class="field-label" for="model-select">Seleccionar modelo integrado</label>
+            <mat-form-field appearance="outline">
+              <mat-select id="model-select" formControlName="modelType" placeholder="Seleccione un modelo">
+                @for (m of availableModels(); track m.id) {
+                <mat-option [value]="m.id">{{ m.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <p class="field-hint">
+              @if (customModelFile()) {
+              Desactivado: se usará el modelo personalizado subido.
+              } @else if (availableModels().length === 0) {
+              No hay modelos integrados disponibles en el sistema.
+              } @else {
+              Modelos disponibles en el sistema.
+              }
+            </p>
+          </div>
+
+          <!-- Divisor "o" -->
+          <div class="split-divider" aria-hidden="true"><span>o</span></div>
+
+          <!-- Modelo personalizado -->
+          <div class="split-item">
+            <label class="field-label">
+              <mat-icon class="label-icon">upload</mat-icon>
+              Subir modelo personalizado (.onnx)
+            </label>
+            <app-file-uploader icon="cloud_upload" accent="blue" title="Arrastra tu archivo .onnx aquí"
+              buttonLabel="Seleccionar archivo" hint="Formato soportado: .onnx (Máx. 50MB)" [accept]="MODEL_EXTENSIONS"
+              [maxSizeMb]="MODEL_MAX_MB" [selectedFile]="customModelFile()"
+              (fileSelected)="onCustomModelSelected($event)" (fileCleared)="onCustomModelCleared()" />
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 2. IMAGEN (obligatorio) ═════════════════════════════════════ -->
+      <section class="panel">
+        <h2 class="panel-title">
+          <span class="badge">2</span> <span>Imagen<span class="req-star">*</span></span>
+        </h2>
+
+        <div class="image-split">
+          <!-- Zona de carga -->
+          <div class="split-item">
+            <app-file-uploader icon="image" accent="blue" title="Arrastra tu imagen aquí"
+              buttonLabel="Seleccionar imagen" hint="Formatos soportados: JPG, PNG, JPEG (Máx. 10MB)"
+              [accept]="IMAGE_EXTENSIONS" [maxSizeMb]="IMAGE_MAX_MB" [selectedFile]="selectedImage()"
+              (fileSelected)="onImageSelected($event)" (fileCleared)="onImageCleared()" />
+          </div>
+
+          <!-- Vista previa -->
+          <div class="split-item">
+            <label class="field-label">Vista previa</label>
+            <div class="preview-box" [class.empty]="!imagePreviewUrl()">
+              @if (imagePreviewUrl()) {
+              <img [src]="imagePreviewUrl()!" alt="Vista previa de la imagen térmica" class="preview-img" />
+              } @else {
+              <div class="preview-placeholder">
+                <mat-icon>image</mat-icon>
+                <span>Sin imagen seleccionada</span>
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 3. DATA TABULAR (opcional) ══════════════════════════════════ -->
+      <section class="panel">
+        <h2 class="panel-title">
+          <span class="badge">3</span> Data tabular <span class="optional-tag"></span>
+        </h2>
+
+        <div class="tabular-split">
+          <!-- Subir Excel -->
+          <div class="tabular-col excel-col">
+            <label class="field-label">Subir archivo Excel <span class="optional-tag"></span></label>
+            <app-file-uploader icon="table_chart" accent="green" title="Arrastra tu archivo .xlsx aquí"
+              buttonLabel="Seleccionar archivo"
+              hint="Formato soportado: .xlsx (Máx. 10MB). El archivo debe contener las variables requeridas."
+              [accept]="EXCEL_EXTENSIONS" [maxSizeMb]="EXCEL_MAX_MB" [selectedFile]="excelFile()"
+              (fileSelected)="onExcelSelected($event)" (fileCleared)="onExcelCleared()" />
+          </div>
+
+          <!-- Variables manuales -->
+          <div class="tabular-col vars-col">
+            <label class="field-label">O ingresar variables manualmente <span class="optional-tag"></span></label>
+            <div class="vars-grid">
+              @for (field of envFields; track field.key) {
+              <mat-form-field appearance="outline">
+                <mat-label>{{ field.label }}</mat-label>
+                <input matInput type="number" [formControlName]="field.key" [placeholder]="field.placeholder"
+                  [min]="field.min ?? null" [max]="field.max ?? null" [step]="field.step" />
+                @if (form.get(field.key)?.hasError('min')) {
+                <mat-error>Valor menor al mínimo permitido</mat-error>
+                }
+                @if (form.get(field.key)?.hasError('max')) {
+                <mat-error>Valor mayor al máximo permitido</mat-error>
+                }
+              </mat-form-field>
+              }
+            </div>
+            <p class="field-info">
+              <mat-icon>info</mat-icon>
+              Todas las variables son opcionales. Deje en blanco las que no tenga.
+            </p>
+          </div>
+
+          <!-- Dato real -->
+          <div class="tabular-col real-col">
+            <label class="field-label">Dato real <span class="optional-tag">(opcional)</span></label>
+            <span class="sub-label">Cantidad real en gramos (g)</span>
+            <mat-form-field appearance="outline">
+              <input matInput type="number" formControlName="realValueGrams" placeholder="Opcional" min="0" max="500"
+                step="0.1" />
+              @if (form.get('realValueGrams')?.hasError('min')) {
+              <mat-error>El valor no puede ser negativo</mat-error>
+              }
+              @if (form.get('realValueGrams')?.hasError('max')) {
+              <mat-error>El valor máximo es 500 g</mat-error>
+              }
+            </mat-form-field>
+            <p class="field-hint">Este dato se usará para comparar el rendimiento del modelo.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ BARRA DE ACCIÓN ═════════════════════════════════════════════ -->
+      <section class="panel action-bar">
+        <button type="submit" class="btn-predict" [disabled]="!canSubmit() || form.invalid">
+          @if (isLoading()) {
+          <mat-spinner diameter="22" />
+          <span>Procesando...</span>
+          } @else {
+          <mat-icon>auto_awesome</mat-icon>
+          <span>Ejecutar Predicción</span>
+          }
+        </button>
+        <span class="verify-hint">
+          <mat-icon>verified_user</mat-icon>
+          Verifica que la imagen sea clara y los datos sean correctos para obtener mejores resultados.
+        </span>
+      </section>
+
+      <!-- Mensaje de error global -->
+      @if (errorMessage()) {
+      <div class="error-msg" role="alert">
+        <mat-icon>error_outline</mat-icon>
+        {{ errorMessage() }}
+      </div>
+      }
+
+    </form>
+    }
+
+    <!-- ─── TAB: RESULTADOS ──────────────────────────────────────────────── -->
+    @if (activeTab() === 'resultados') {
+    <div class="tab-content-wrap">
+      @if (result()) {
+      <app-results-panel [data]="result()!" (resetRequest)="onReset()" />
+      } @else {
+      <div class="results-placeholder full">
+        <mat-icon>query_stats</mat-icon>
+        <p>Aún no hay resultados</p>
+        <span>Ve a la sesion "Probar Modelo" para ejecutar una predicción</span>
+        <button class="btn-secondary" (click)="setTab('probar')">Ir a Probar Modelo</button>
+      </div>
+      }
+    </div>
+    }
+
+    <!-- ─── TAB: CONTEXTO ───────────────────────────────────────────────── -->
+    @if (activeTab() === 'contexto') {
+    <div class="tab-content-wrap context-layout">
+      <div class="context-body">
+        <h2>Contexto del Proyecto</h2>
+        <p>
+          Este proyecto de investigación fue desarrollado por la <strong>Institución Universitaria de Envigado
+            (IUE)</strong> en colaboración con la <strong>Universidad de Antioquia (UDEA)</strong>, con el propósito de
+          explorar e implementar técnicas avanzadas de inteligencia artificial y visión por computador para la
+          estimación automática de la densidad y cantidad de lombrices rojas (<em>Eisenia fetida</em>) a partir de
+          imágenes térmicas digitales.
+        </p>
+        <p>
+          La investigación surge de la necesidad de fortalecer los procesos de monitoreo y evaluación en sistemas de
+          lombricultura, mediante herramientas tecnológicas que permitan obtener mediciones más objetivas, rápidas y
+          reproducibles, reduciendo la dependencia de procedimientos manuales tradicionales. Este enfoque se enmarca
+          dentro de los principios de la agricultura de precisión y la producción sostenible, promoviendo el uso de
+          tecnologías emergentes para optimizar la toma de decisiones en sistemas agropecuarios.
+        </p>
+        <p>
+          El proyecto integra técnicas de procesamiento de imágenes, aprendizaje automático y aprendizaje profundo para
+          analizar patrones térmicos asociados a la presencia y concentración de lombrices en diferentes escenarios
+          experimentales. Las imágenes térmicas utilizadas permiten capturar variaciones de temperatura asociadas a la
+          actividad biológica de los organismos, proporcionando una fuente de información no invasiva para el análisis
+          automatizado.
+        </p>
+
+        <h3>Metodología</h3>
+        <p>
+          La metodología integró el análisis de imágenes térmicas y datos tabulares para la estimación automática de la
+          densidad y cantidad de lombrices rojas (<em>Eisenia fetida</em>). El procesamiento de imágenes se realizó
+          mediante técnicas de conteo y análisis de píxeles, complementadas con variables tabulares derivadas de las
+          mediciones experimentales. Los modelos de inteligencia artificial fueron entrenados utilizando Leave-One-Out
+          Cross-Validation (LOOCV), garantizando una validación robusta y minimizando el riesgo de sobreajuste.
+        </p>
+
+        <h3>Adquisición de datos</h3>
+        <p>
+          La adquisición de datos se realizó mediante la integración de un sistema IoT desarrollado en Python y el uso
+          de una cámara térmica para la captura de imágenes. Los datos tabulares incluyeron variables ambientales y
+          fisicoquímicas relevantes para el estudio, tales como humedad (%), temperatura, intensidad UV, conductividad
+          (µS/cm), pH, nitrógeno (mg/kg), fósforo (mg/kg) y potasio (mg/kg), registradas durante cada medición
+          experimental. La unidad experimental correspondió a una cama de lombrices, en la cual se realizaron mediciones
+          a profundidades de 5 cm y 10 cm. Para la generación del conjunto de datos, se implementó un protocolo de
+          inyección progresiva de lombrices, interpretando cada bloque experimental como una cantidad acumulada de
+          biomasa. El experimento inició con una toma correspondiente a 0 g, seguida de incrementos de 10 g cada cinco
+          capturas, hasta alcanzar un máximo de 50 g, permitiendo obtener datos representativos para el entrenamiento y
+          evaluación de los modelos de inteligencia artificial.
+        </p>
+      </div>
+
+      <aside class="context-aside">
+        <div class="pdf-card">
+          <mat-icon class="pdf-icon">picture_as_pdf</mat-icon>
+          <h4>Artículo científico</h4>
+          <p>Descarga el artículo completo para mas informacion acerca del proyecto.</p>
+          <a href="assets/documents/Articulo_lombrices.pdf" download="articulo.pdf" class="btn-pdf"
+            style="text-decoration: none;">
+            <mat-icon>download</mat-icon>
+            Descargar PDF
+          </a>
+        </div>
+      </aside>
+    </div>
+    }
+
+    <!-- ─── TAB: ACERCA DE ──────────────────────────────────────────────── -->
+    @if (activeTab() === 'acerca') {
+    <div class="tab-content-wrap">
+      <div class="about-content">
+        <h2>Acerca del Proyecto</h2>
+        <div class="about-grid">
+          <div class="about-card">
+            <mat-icon>school</mat-icon>
+            <h4>Instituciones</h4>
+            <p><br>
+              <a href="https://www.iue.edu.co/" target="_blank" rel="noopener noreferrer" class="about-link">Institución
+                Universitaria de Envigado</a><br>
+              <span class="sep-dot"></span>
+              <a href="https://www.udea.edu.co/wps/portal/udea/web/inicio" target="_blank" rel="noopener noreferrer"
+                class="about-link">Universidad de Antioquia</a>
+            </p>
+          </div>
+          <div class="about-card">
+            <mat-icon>science</mat-icon>
+            <h4>Objetivo</h4>
+            <p>Desarrollar modelos de inteligencia artificial capaces de estimar automáticamente la densidad y cantidad
+              de lombrices rojas (<em>Eisenia fetida</em>) mediante el análisis de imágenes térmicas y datos
+              experimentales.</p>
+          </div>
+          <div class="about-card">
+            <mat-icon>memory</mat-icon>
+            <h4>Tecnologías</h4>
+            <p>Python · Sistema IoT · Cámara térmica · CatBoost · Random Forest · Scikit-learn · OpenCV · Scikit-image ·
+              SHAP · LOOCV</p>
+          </div>
+          <div class="about-card">
+            <mat-icon>eco</mat-icon>
+            <h4>Impacto</h4>
+            <p>Contribuir al fortalecimiento de la lombricultura sostenible y la agricultura de precisión mediante
+              herramientas innovadoras de monitoreo y análisis automatizado basadas en inteligencia artificial.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       FOOTER
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <img src="assets/logos/iue-logo.png" alt="IUE Logo" class="logo-img sm">
+        <span>Institución Universitaria de Envigado</span>
+      </div>
+      <div class="footer-logo">
+        <img src="assets/logos/udea-logo.webp" alt="UDEA Logo" class="logo-img udea sm">
+        <span>Universidad de Antioquia</span>
+      </div>
+      <div class="footer-tagline">
+        <mat-icon>handshake</mat-icon>
+        <span>Alianza académica para la investigación y el desarrollo sostenible</span>
+      </div>
+    </div>
+  </footer>
+
+</div>

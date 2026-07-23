@@ -1,0 +1,5 @@
+Flask
+pyserial
+openpyxl
+psycopg2-binary
+python-dotenv
